@@ -23,6 +23,15 @@ target_include_directories(mimicssl-md5 PUBLIC
     ${PROJECT_BINARY_DIR})
 
 add_library(mimicssl-md5-shared SHARED)
+if("${CMAKE_SYSTEM_NAME}" STREQUAL "iOS")
+    set_target_properties(mimicssl-md5-shared PROPERTIES
+        XCODE_ATTRIBUTE_CODE_SIGNING_ALLOWED "NO"
+        XCODE_ATTRIBUTE_ENABLE_BITCODE "NO"
+        MACOSX_BUNDLE_BUNDLE_NAME mimicssl-md5
+        MACOSX_BUNDLE_BUNDLE_VERSION 1.0
+        MACOSX_BUNDLE_SHORT_VERSION_STRING 1.0
+        MACOSX_BUNDLE_LONG_VERSION_STRING 1.0)
+endif()
 target_sources(mimicssl-md5-shared PRIVATE
     src/md5.c)
 target_include_directories(mimicssl-md5-shared PUBLIC
