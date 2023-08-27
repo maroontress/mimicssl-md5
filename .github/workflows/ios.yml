@@ -19,11 +19,25 @@ jobs:
         with:
           submodules: true
 
+      - name: Configure
+        run: |
+          sh ios.sh build configure
       - name: Build
         run: |
-          sh build-ios.sh "$HOME/ios"
+          sh ios.sh build build
+      - name: Install
+        run: |
+          sh ios.sh build install $HOME/ios
       - name: Archive artifacts
         uses: actions/upload-artifact@v3
         with:
           name: ios
           path: ~/ios/
+      - name: Run simulator
+        run: |
+          runtime=$(xcrun simctl list runtimes iOS -j | jq '.runtimes[].identifier' | tail -1)
+          udid=$(xcrun simctl list devices iPhone available -j | jq '.devices['$runtime']|.[].udid' | tail -1)
+          xcrun simctl bootstatus $(eval echo $udid) -b
+      - name: Test
+        run: |
+          ctest --test-dir build/iphonesimulator-x86_64 -C Release
