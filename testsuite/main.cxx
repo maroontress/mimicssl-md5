@@ -6,6 +6,7 @@
 #include <iostream>
 #include <map>
 #include <string>
+#include <thread>
 
 #include "md5.h"
 
@@ -123,7 +124,11 @@ withString(const std::string& m, const std::array<uint8_t, 16>& expected)
 }
 
 int
-main(int ac, char** av) {
+main(int ac, char** av)
+{
+    if (IOS_PROCESS_DELAY_WORKAROUND) {
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+    }
     auto driver = Driver {av};
     driver.add("endian", [] {
         expect(std::endian::native) == std::endian::little;
