@@ -5,6 +5,7 @@ if [ "$#" = "0" ] ; then
     echo usage: $0 BUILD_DIR build
     echo usage: $0 BUILD_DIR install INSTALL_DIR
     echo usage: $0 BUILD_DIR test ARCH
+    echo usage: $0 BUILD_DIR build-non-fat SDK ARCH
     exit 1
 fi
 root_build_dir="$1"
@@ -143,6 +144,28 @@ cmake_install() {
         -- -sdk $sdk -destination "$destination" || exit 1
 }
 
+check_sdk() {
+    sdk="$1"
+    case "$sdk" in
+    iphoneos|iphonesimulator)
+        ;;
+    *)
+        echo unknown SDK: $sdk
+        exit 1
+    esac
+}
+
+check_arch() {
+    arch="$1"
+    case "$arch" in
+    arm64|x86_64)
+        ;;
+    *)
+        echo unknown ARCH: $arch
+        exit 1
+    esac
+}
+
 if [ "$#" = "0" ] ; then
     echo COMMAND not specified
     exit 1
@@ -154,6 +177,20 @@ sdk_list="iphoneos iphonesimulator"
 all="iphoneos-arm64 iphonesimulator-arm64 iphonesimulator-x86_64"
 
 case "$command" in
+build-non-fat)
+    if [ "$#" -lt 2 ] ; then
+        echo SDK and ARCH not specified
+        exit 1
+    fi
+    sdk="$1"
+    arch="$2"
+    shift 2
+    check_sdk $sdk
+    check_arch $arch
+    rm -rf $root_build_dir || exit 1
+    configure $sdk $arch "$@" || exit 1
+    build $sdk $arch || exit 1
+    ;;
 configure)
     rm -rf $root_build_dir || exit 1
     for i in $all ; do
@@ -213,13 +250,7 @@ test)
     fi
     arch="$1"
     shift
-    case "$arch" in
-    arm64|x86_64)
-        ;;
-    *)
-        echo unknown ARCH: $arch
-        exit 1
-    esac
+    check_arch $arch
     runtime=$(xcrun simctl list runtimes iOS -j \
         | jq '.runtimes[].identifier' | tail -1)
     udid=$(xcrun simctl list devices iPhone available -j \
