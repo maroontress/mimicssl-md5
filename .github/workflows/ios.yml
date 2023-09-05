@@ -19,8 +19,8 @@ jobs:
         abi: [x86_64, arm64]
         sdk: [iphoneos, iphonesimulator]
         exclude:
-          - abi: x86_64
-            sdk: iphoneos
+        - abi: x86_64
+          sdk: iphoneos
     steps:
     - name: get-cmake
       uses: lukka/get-cmake@v3.27.4
@@ -96,5 +96,4 @@ jobs:
         udid=$(xcrun simctl list devices iPhone available -j | jq '.devices['$runtime']|.[].udid' | tail -1)
         xcrun simctl bootstatus $(eval echo $udid) -b
     - name: Test
-      run: |
-        ctest --test-dir build/iphonesimulator-x86_64 -C $BUILD_TYPE
+      run: ctest --test-dir build/iphonesimulator-x86_64 -C $BUILD_TYPE
