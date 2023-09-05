@@ -9,6 +9,10 @@ on:
 env:
   BUILD_TYPE: Release
 
+defaults:
+  run:
+    shell: bash
+
 jobs:
   single_config:
     strategy:
@@ -22,16 +26,12 @@ jobs:
         submodules: true
         lfs: true
     - name: Configure CMake
-      shell: bash
       run: cmake -S . -B build -DCMAKE_BUILD_TYPE=$BUILD_TYPE
     - name: Build
-      shell: bash
       run: cmake --build build
     - name: Test
-      shell: bash
       run: ctest --test-dir build -V
     - name: Install
-      shell: bash
       run: cmake --install build --prefix=$HOME/mimicssl
 
   multi_config:
@@ -46,14 +46,10 @@ jobs:
         submodules: true
         lfs: true
     - name: Configure CMake
-      shell: bash
       run: cmake -S . -B build
     - name: Build
-      shell: bash
       run: cmake --build build --config $BUILD_TYPE
     - name: Test
-      shell: bash
       run: ctest --test-dir build -V -C $BUILD_TYPE
     - name: Install
-      shell: bash
       run: cmake --install build --config $BUILD_TYPE --prefix=$HOME/mimicssl
