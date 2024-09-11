@@ -28,5 +28,5 @@ target_link_libraries(testsuite mimicssl-md5)
 
 include(GoogleTest)
 gtest_discover_tests(testsuite
-    DISCOVERY_TIMEOUT 50
+    DISCOVERY_TIMEOUT 500
     DISCOVERY_MODE PRE_TEST)

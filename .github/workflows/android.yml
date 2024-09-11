@@ -18,7 +18,7 @@ jobs:
     timeout-minutes: 30
     strategy:
       matrix:
-        os: [windows-latest, ubuntu-latest, macos-latest]
+        os: [windows-latest, ubuntu-latest, macos-13]
         abi: [x86_64, x86, arm64-v8a, armeabi-v7a]
     runs-on: ${{matrix.os}}
 
@@ -50,16 +50,16 @@ jobs:
     - name: Install ${{matrix.abi}}
       run: cmake --install build/${{matrix.abi}}
     - name: Archive artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
-        name: android-${{matrix.os}}
+        name: android-${{matrix.os}}-${{matrix.abi}}
         path: ~/android/
 
   test:
     timeout-minutes: 30
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest]
+        os: [ubuntu-latest, macos-13]
         abi: [x86_64]
     runs-on: ${{matrix.os}}
 
@@ -75,7 +75,7 @@ jobs:
           | sudo tee /etc/udev/rules.d/99-kvm4all.rules
         sudo udevadm control --reload-rules
         sudo udevadm trigger --name-match=kvm
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         submodules: true
         lfs: true
@@ -84,7 +84,7 @@ jobs:
     - name: Build ${{matrix.abi}}
       run: cmake --build build/${{matrix.abi}} -v
     - name: AVD cache
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       id: avd-cache
       with:
         path: |
@@ -113,7 +113,7 @@ jobs:
         disable-animations: true
         script: sh android.sh build test ${{matrix.abi}}
     - name: Archive artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: android-testsuite-${{matrix.os}}-${{matrix.abi}}
         path: build/${{matrix.abi}}/testsuite/log.txt
